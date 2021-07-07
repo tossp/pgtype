@@ -2,6 +2,7 @@ package pgtype_test
 
 import (
 	"bytes"
+	"errors"
 	"net"
 	"testing"
 
@@ -11,7 +12,6 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	errors "golang.org/x/xerrors"
 )
 
 // Test for renamed types
@@ -31,6 +31,20 @@ func mustParseCIDR(t testing.TB, s string) *net.IPNet {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	return ipnet
+}
+
+func mustParseInet(t testing.TB, s string) *net.IPNet {
+	ip, ipnet, err := net.ParseCIDR(s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ipv4 := ip.To4(); ipv4 != nil {
+		ip = ipv4
+	}
+
+	ipnet.IP = ip
 
 	return ipnet
 }
